@@ -152,11 +152,10 @@ class UserlistPlugin extends Gdn_Plugin {
                 }
                 // $user['ProfileUrl'] = profileUrl($user);
                 $user['UserUrl'] = userUrl($user);
-                $user['UserPhoto'] = userPhoto($user);
+                $user['UserPhoto'] = userPhoto($user, ['Size' => 'Small']);
                 $user['UserPhotoUrl'] = userPhotoUrl($user);
                 $user['UserAnchor'] = userAnchor($user);
-
-
+                $user['CountPosts'] = $user['CountDiscussions'] + $user['CountComments'];
             }
         );
 
@@ -177,7 +176,7 @@ class UserlistPlugin extends Gdn_Plugin {
      *
      * @return void.
      */
-    public function vanillaController_userlist_create($sender) {
+    public function vanillaController_userlist_create($sender,$args) {
         // Ensure view permissions.
         $sender->permission('Plugins.Userlist.View');
 
@@ -194,11 +193,23 @@ class UserlistPlugin extends Gdn_Plugin {
         $sender->addModule('BookmarkedModule');
 
         // Create pager.
+        $page = $args[0] ?? 'p1';
+        // Determine offset from $Page
+        list($offset, $limit) = offsetLimit(
+            $page,
+            Gdn::config('Userlist.PerPage', 30)
+            , true
+        );
+        // Configure pager.
+        PagerModule::current()->configure($offset, $limit, false, 'vanilla/userlist/{Page}');
+
+        // Set canonical URL
+        $sender->canonicalUrl(url('vanilla/userlist/'.pageNumber($offset, $limit, true, false)));
 
         // Fetch sort options.
 
         // TODO: Handle page requests with sort and paging.
-        $sender->setData('Users', $this->getConsolidatedUserData());
+        $sender->setData('Users', $this->getConsolidatedUserData('', 'asc', $limit, $offset));
 
         // Determine the view to use.
         $userID = Gdn::session()->UserID;
