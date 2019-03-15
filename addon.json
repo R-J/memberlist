@@ -7,12 +7,9 @@
     "key": "userlist",
     "mobileFriendly": true,
     "hasLocale": true,
-    "settingsUrl": "/settings/userlist",
     "registerPermissions": {
-        "Plugins.Userlist.OptOut.Allow": true,
-        "Plugins.Userlist.View": true
+        "Plugins.Userlist.View": 0
     },
-    "usePopupSettings": false,
     "pluginUrl": "https://github.com/r-j/userlist",
     "authors": [
         {
