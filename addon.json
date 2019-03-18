@@ -1,16 +1,16 @@
 {
-    "name": "Userlist",
-    "description": "Add a user list to the forum",
+    "name": "Memberlist",
+    "description": "Add a memberlist to the forum",
     "version": "0.0.1",
     "license": "MIT",
     "type": "addon",
-    "key": "userlist",
+    "key": "memberlist",
     "mobileFriendly": true,
     "hasLocale": true,
     "registerPermissions": {
-        "Plugins.Userlist.View": 0
+        "Plugins.Memberlist.View": 0
     },
-    "pluginUrl": "https://github.com/r-j/userlist",
+    "pluginUrl": "https://github.com/r-j/memberlist",
     "authors": [
         {
             "name": "Robin Jurinka",
