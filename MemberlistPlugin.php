@@ -74,7 +74,7 @@ class MemberlistPlugin extends Gdn_Plugin {
      * @return array User data.
      */
     public function getConsolidatedUserData(
-        string $orderFields = '',
+        string $orderFields = 'Name',
         string $orderDirection = 'asc',
         int $limit = 30,
         int $offset = 0
@@ -144,6 +144,35 @@ class MemberlistPlugin extends Gdn_Plugin {
     }
 
     /**
+     * Get number of users.
+     *
+     * Try to get data from cache, refresh cached data otherwise.
+     *
+     * @return integer Number of users.
+     */
+    public function getUserCount(): int {
+        $userCount = Gdn::cache()->get('Memberlist_Usercount');
+        if ($userCount !== Gdn_Cache::CACHEOP_FAILURE) {
+            return $userCount;
+        }
+
+        // Get user count.
+        $userCount = Gdn::userModel()->getCountWhere(
+            ['Banned' => 0, 'Deleted' => 0]
+        );
+
+        // Cache for later usage.
+        Gdn::cache()->store(
+            'Memberlist_Usercount',
+            $userCount,
+            [Gdn_Cache::FEATURE_EXPIRY => 360] // Cache for 5 minutes
+        );
+
+        return $userCount;
+    }
+
+
+    /**
      * Determine user role and try to get a view with that name. Default to "memberlist".
      *
      * @param VanillaController $sender Instance of the calling class.
@@ -168,7 +197,7 @@ class MemberlistPlugin extends Gdn_Plugin {
         $sender->addModule('BookmarkedModule');
 
         // Fetch sort options.
-        $sort = Gdn::request()->get('sort', false);
+        $sort = Gdn::request()->get('sort', 'Name');
         if (!in_array($sort, Gdn::config('Memberlist.AllowedSorts', ['Name']))) {
             $sort = '';
             $order = 'asc';
@@ -198,6 +227,7 @@ class MemberlistPlugin extends Gdn_Plugin {
             false,
             'vanilla/memberlist/{Page}'.$pagerGetQueryString
         );
+        PagerModule::current()->TotalRecords = $this->getUserCount();
 
         // Set canonical URL
         $sender->canonicalUrl(url('vanilla/memberlist/'.pageNumber($offset, $limit, true, false)));
